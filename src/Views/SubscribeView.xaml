@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="MQTTSniffer.Views.SubscribeView"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:id="clr-namespace:Dock.Avalonia;assembly=Dock.Avalonia"
+             xmlns:idc="clr-namespace:Dock.Avalonia.Controls;assembly=Dock.Avalonia"
+             mc:Ignorable="d"
+             d:DesignWidth="1280" d:DesignHeight="40">
+  <Grid ColumnDefinitions="50,300,Auto" RowDefinitions="*" HorizontalAlignment="Left" Margin="4">
+    <TextBlock Grid.Row="0" Grid.Column="0" Text="Topic" VerticalAlignment="Center" />
+    <TextBox Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" Text="{Binding SubscribeTopic}" Watermark="Enter topic here"  />
+    <Button Grid.Row="0" Grid.Column="2" Content="Subscribe" Margin="5,0,0,0" Command="{Binding NewSubscriptionCommand}" />
+  </Grid>
+</UserControl>

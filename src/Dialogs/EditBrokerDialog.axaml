@@ -1,0 +1,35 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+        Width="400" Height="450"
+        x:Class="MQTTSniffer.Dialogs.EditBrokerDialog"
+        Title="Edit Broker">
+  <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,*">
+    <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="Auto,240,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto" Margin="5">
+      <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Broker settings" VerticalAlignment="Center" FontWeight="Medium" />
+      <TextBlock Grid.Row="1" Grid.Column="0" Text="Profile name:" VerticalAlignment="Center" />
+      <TextBox Grid.Row="1" Grid.Column="1" Margin="5,5,0,0" Text="{Binding ProfileName}" />
+      <TextBlock Grid.Row="2" Grid.Column="0" Text="Broker URL:" VerticalAlignment="Center" />
+      <TextBox Grid.Row="2" Grid.Column="1" Margin="5,5,0,0" Text="{Binding BrokerURL}" />
+      <TextBlock Grid.Row="3" Grid.Column="0" Text="Broker Port:" VerticalAlignment="Center" />
+      <TextBox Grid.Row="3" Grid.Column="1" Margin="5,5,0,0" Text="{Binding BrokerPort}" />
+      <TextBlock Grid.Row="4" Grid.Column="0" Text="Client Id:" VerticalAlignment="Center" />
+      <TextBox Grid.Row="4" Grid.Column="1" Margin="5,5,0,0" Text="{Binding ClientId}" />
+      <Button Grid.Row="4" Grid.Column="2" Content="Generate" Margin="5,5,0,0" Command="{Binding OnMQTTClientIdGenerateCommand}" />
+    </Grid>
+    <Grid Grid.Row="1" Grid.Column="0" ColumnDefinitions="Auto,240,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Margin="5">
+      <TextBlock Grid.Row="0" Grid.Column="0" Text="Security" VerticalAlignment="Center" FontWeight="Medium" />
+      <TextBlock Grid.Row="1" Grid.Column="0" Text="Username:" VerticalAlignment="Center" />
+      <TextBox Grid.Row="1" Grid.Column="1" Margin="5,5,0,0" Text="{Binding UserName}" />
+      <TextBlock Grid.Row="2" Grid.Column="0" Text="Password:" VerticalAlignment="Center" />
+      <TextBox Grid.Row="2" Grid.Column="1" Margin="5,5,0,0" Text="{Binding Password}" PasswordChar="*" />
+    </Grid>
+    <Grid Grid.Row="2" Grid.Column="0" ColumnDefinitions="50,50,Auto" RowDefinitions="*" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+      <Button Grid.Row="0" Grid.Column="0" Content="Delete" Margin="5,0,0,0" Click="OnDeleteCommand" />
+      <Button Grid.Row="0" Grid.Column="1" Content="Save" Margin="5,0,0,0" Click="OnSaveCommand" />
+      <Button Grid.Row="0" Grid.Column="2" Content="Cancel" Margin="5,0,0,0" Click="OnCancelCommand" />
+    </Grid>
+  </Grid>
+</Window>
