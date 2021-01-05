@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive.Linq;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -15,6 +16,7 @@ using MQTTSniffer.Dialogs.Documents;
 using MQTTSniffer.Model;
 using MQTTSniffer.ViewModels.Documents;
 using MQTTSniffer.Views.Layouts;
+using Newtonsoft.Json.Linq;
 using ReactiveUI;
 
 namespace MQTTSniffer.ViewModels
@@ -23,35 +25,18 @@ namespace MQTTSniffer.ViewModels
     {
         public const string DocumentsDockId = "Topics";
 
-        //private IDockSerializer? _serializer;
         private IFactory? _factory;
         private IDock? _layout;
         private MQTTClient? _client = null;
-        private bool _brokerSelectionEnabled = true;
         private CanConnectTracker _connectTracker;
         private CanDisconnectTracker _disconnectTracker;
         private MQTTMessageTracker _messageTracker = new MQTTMessageTracker();
-        private string _addEditName = "Add";
-
-        public ObservableCollection<BrokerEntity> BrokerEntities { get; set; } = new ObservableCollection<BrokerEntity>();
+        private BrokerEntity? SelectedBrokerEntity;
 
         public IReactiveCommand OnConnectCommand { get; }
         public IReactiveCommand OnDisconnectCommand { get; }
 
         public string SubscribeTopic { get; set; } = string.Empty;
-
-        public BrokerEntity SelectedBrokerEntity { get; set; }
-        public bool BrokerSelectionEnabled
-        {
-            get => _brokerSelectionEnabled;
-            set => this.RaiseAndSetIfChanged(ref _brokerSelectionEnabled, value);
-        }
-
-        //public IDockSerializer? Serializer
-        //{
-        //    get => _serializer;
-        //    set => this.RaiseAndSetIfChanged(ref _serializer, value);
-        //}
 
         public IFactory? Factory
         {
@@ -63,12 +48,6 @@ namespace MQTTSniffer.ViewModels
         {
             get => _layout;
             set => this.RaiseAndSetIfChanged(ref _layout, value);
-        }
-
-        public string AddEditName
-        {
-            get => _addEditName;
-            set => this.RaiseAndSetIfChanged(ref _addEditName, value);
         }
 
         private class Unsubscriber : IDisposable
@@ -117,9 +96,6 @@ namespace MQTTSniffer.ViewModels
         }
         public MainWindowViewModel()
         {
-            BrokerEntities.Add(new BrokerEntity { ProfileName = "Add new...", IsDummy = true });
-            SelectedBrokerEntity = BrokerEntities[0];
-
             _connectTracker = new CanConnectTracker();
             _disconnectTracker = new CanDisconnectTracker();
             OnConnectCommand = ReactiveCommand.Create(() => OnConnectAction(), _connectTracker);
@@ -137,48 +113,41 @@ namespace MQTTSniffer.ViewModels
             }
         }
 
-        // triggered when selection changes on combobox
-        public void BrokerSelectionChanged(object? sender, SelectionChangedEventArgs e)
+        private BrokerEntity? OpenFileViewModel(string path)
         {
-            if (e.AddedItems.Count > 0)
+            Encoding encoding = GetEncoding(path);
+            string text = File.ReadAllText(path, encoding);
+            string title = Path.GetFileName(path);
+
+            try
             {
-                var item = e.AddedItems[0] as BrokerEntity;
-                if (BrokerEntities.IndexOf(item) > 0)
-                {
-                    AddEditName = "Edit";
-                    _connectTracker.CanConnect(true);
-                }
-                else
-                {
-                    AddEditName = "Add";
-                    _connectTracker.CanConnect(false);
-                }
+                JObject jObject = JObject.Parse(text);
+
+                var nn = jObject.ToObject<BrokerEntity>();
+                nn.FileName = title;
+                nn.FilePath = path;
+                return nn;
             }
+            catch (Exception e)
+            {
+            }
+            return null;
         }
-    //private SubscribeViewModel OpenFileViewModel(string path)
-    //{
-    //    Encoding encoding = GetEncoding(path);
-    //    string text = File.ReadAllText(path, encoding);
-    //    string title = Path.GetFileName(path);
-    //    return new SubscribeViewModel()
-    //    {
-    //        Title = title,
-    //        Text = text,
-    //        Encoding = encoding.WebName
-    //    };
-    //}
 
-    //private void SaveFileViewModel(SubscribeViewModel fileViewModel)
-    //{
-    //    File.WriteAllText(fileViewModel.Path, fileViewModel.Text, Encoding.GetEncoding(fileViewModel.Encoding));
-    //}
+        private void SaveFileViewModel(BrokerEntity fileViewModel)
+        {
+            JObject j = JObject.FromObject(fileViewModel);
 
-    //private void UpdateFileViewModel(SubscribeViewModel fileViewModel, string path)
-    //{
-    //    fileViewModel.Title = Path.GetFileName(path);
-    //}
+            File.WriteAllText(fileViewModel.FilePath, j.ToString(Newtonsoft.Json.Formatting.Indented), Encoding.UTF8);
+        }
 
-        private void AddSubscribeViewModel(TopicViewModel topicViewModel)
+        private void UpdateFileViewModel(BrokerEntity fileViewModel, string path)
+        {
+            fileViewModel.FilePath = path;
+            fileViewModel.FileName = Path.GetFileName(path);
+        }
+
+        private void AddTopicViewModel(TopicViewModel topicViewModel)
         {
             if (Layout?.ActiveDockable is IDock active)
             {
@@ -187,11 +156,13 @@ namespace MQTTSniffer.ViewModels
                     Factory?.AddDockable(dock, topicViewModel);
                     Factory?.SetActiveDockable(topicViewModel);
                     Factory?.SetFocusedDockable(Layout, topicViewModel);
+
+                    topicViewModel.OnClosedEvent += TopicViewModel_OnClosedEvent;
                 }
             }
         }
 
-        private TopicViewModel? GetActiveSubscribeViewModel()
+        private TopicViewModel? GetActiveTopicViewModel()
         {
             if (Layout?.ActiveDockable is IDock active)
             {
@@ -203,14 +174,28 @@ namespace MQTTSniffer.ViewModels
             return null;
         }
 
-        public void NewSubscriptionCommand()
+        private IEnumerable<TopicViewModel> GetAllTopicViewModels()
+        {
+            List<TopicViewModel> views = new List<TopicViewModel>();
+            if (Layout?.ActiveDockable is IDock active)
+            {
+                if (active.Factory?.FindDockable(active, (d) => d.Id == DocumentsDockId) is IDock dock)
+                {
+                    if (dock.ActiveDockable is TopicViewModel tvm)
+                        views.Add(tvm);
+                }
+            }
+            return views;
+        }
+
+        public async void NewSubscriptionCommand()
         {
             if (!string.IsNullOrEmpty(SubscribeTopic))
             {
                 // if document window already exist with that name, switch to it
                 if (Layout?.ActiveDockable is IDock active)
                 {
-                    if (active.Factory?.FindDockable(active, (d) => d.Title == SubscribeTopic) is IDockable dock)
+                    if (active.Factory?.FindDockable(active, (d) => d.Title == SubscribeTopic) is IDock dock)
                     {
                         Factory?.SetActiveDockable(dock);
                         Factory?.SetFocusedDockable(Layout, dock);
@@ -221,56 +206,31 @@ namespace MQTTSniffer.ViewModels
                 {
                     Title = SubscribeTopic,
                 };
+                AddTopicViewModel(topicViewModel);
+                if (SelectedBrokerEntity != null && !SelectedBrokerEntity.Topics.Contains(SubscribeTopic))
+                    SelectedBrokerEntity.Topics.Add(SubscribeTopic);
 
-                AddSubscribeViewModel(topicViewModel);
                 if (_client != null)
-                    _client.Subscribe(SubscribeTopic);
+                    await _client.SubscribeAsync(SubscribeTopic);
             }
         }
 
-        public async void OnEditBrokerUrlCommand()
+        private async void TopicViewModel_OnClosedEvent(object? sender, EventArgs e)
         {
-            var edit = new EditBrokerDialog();
-
-            BrokerEntity? changingEntity = SelectedBrokerEntity.IsDummy ? null : SelectedBrokerEntity;
-
-            EditBrokerDialogViewModel editBrokerViewModel = new EditBrokerDialogViewModel(changingEntity);
-            edit.DataContext = editBrokerViewModel;
-            var result = await edit.ShowDialog<string>(GetWindow());
-            if (Constants.SAVE.Equals(result))
+            if (sender is TopicViewModel tvm)
             {
-                // save
-                if (changingEntity == null)
-                {
-                    BrokerEntities.Add(new BrokerEntity
-                    {
-                        ProfileName = editBrokerViewModel.ProfileName,
-                        URL = editBrokerViewModel.BrokerURL,
-                        Port = editBrokerViewModel.BrokerPort,
-                        ClientId = editBrokerViewModel.ClientId,
-                        UserName = editBrokerViewModel.UserName,
-                        Password = editBrokerViewModel.Password
-                    });
-                }
-                else
-                {
-                    changingEntity.ProfileName = editBrokerViewModel.ProfileName;
-                    changingEntity.URL = editBrokerViewModel.BrokerURL;
-                    changingEntity.Port = editBrokerViewModel.BrokerPort;
-                    changingEntity.ClientId = editBrokerViewModel.ClientId;
-                    changingEntity.UserName = editBrokerViewModel.UserName;
-                    changingEntity.Password = editBrokerViewModel.Password;
-                }
-            }
-            else if (Constants.DELETE.Equals(result))
-            {
-                // delete
-                if (SelectedBrokerEntity != null)
-                    BrokerEntities.Remove(SelectedBrokerEntity);
+                tvm.OnClosedEvent -= TopicViewModel_OnClosedEvent;
+                
+                if (SelectedBrokerEntity != null && SelectedBrokerEntity.Topics.Contains(tvm.Title))
+                    SelectedBrokerEntity.Topics.Remove(tvm.Title);
+
+                // unsubscribe
+                if (_client != null)
+                    await _client.UnsubscribeAsync(tvm.Title);
             }
         }
 
-        private void OnConnectAction()
+        private async void OnConnectAction()
         {
             if (_client == null && SelectedBrokerEntity != null)
             {
@@ -280,9 +240,12 @@ namespace MQTTSniffer.ViewModels
 
                 _connectTracker.CanConnect(false);
                 _disconnectTracker.CanDisconnect(true);
-                BrokerSelectionEnabled = false;
 
                 // subscribe on all topics
+                foreach (var topic in SelectedBrokerEntity.Topics)
+                {
+                    await _client.SubscribeAsync(topic);
+                }
             }
         }
 
@@ -296,7 +259,6 @@ namespace MQTTSniffer.ViewModels
 
                 _connectTracker.CanConnect(true);
                 _disconnectTracker.CanDisconnect(false);
-                BrokerSelectionEnabled = true;
             }
         }
         private void MQTTMessageReceived(MQTTMessage message)
@@ -304,78 +266,101 @@ namespace MQTTSniffer.ViewModels
             _messageTracker.NewMessage(message);
         }
 
-        //public async void FileOpen()
-        //{
-        //    var dlg = new OpenFileDialog();
-        //    dlg.Filters.Add(new FileDialogFilter() { Name = "Text document", Extensions = { "txt" } });
-        //    dlg.Filters.Add(new FileDialogFilter() { Name = "All", Extensions = { "*" } });
-        //    dlg.AllowMultiple = true;
-        //    var result = await dlg.ShowAsync(GetWindow());
-        //    if (result != null && result.Length > 0)
-        //    {
-        //        foreach (var path in result)
-        //        {
-        //            if (!string.IsNullOrEmpty(path))
-        //            {
-        //                var untitledFileViewModel = OpenFileViewModel(path);
-        //                if (untitledFileViewModel != null)
-        //                {
-        //                    AddFileViewModel(untitledFileViewModel);
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+        #region FileCommands
+        public async void FileOpenCommand()
+        {
+            var dlg = new OpenFileDialog();
+            dlg.Filters.Add(new FileDialogFilter() { Name = "MQTT Sniffer config", Extensions = { "json" } });
+            dlg.AllowMultiple = false;
+            var result = await dlg.ShowAsync(GetWindow());
+            if (result != null && result.Length > 0)
+            {
+                foreach (var path in result)
+                {
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        SelectedBrokerEntity = OpenFileViewModel(path);
+                        if (SelectedBrokerEntity != null)
+                        {
+                            _connectTracker.CanConnect(true);
 
-        //public async void FileSave()
-        //{
-        //    if (GetFileViewModel() is SubscribeViewModel fileViewModel)
-        //    {
-        //        if (string.IsNullOrEmpty(fileViewModel.Path))
-        //        {
-        //            await FileSaveAsImpl(fileViewModel);
-        //        }
-        //        else
-        //        {
-        //            SaveFileViewModel(fileViewModel);
-        //        }
-        //    }
-        //}
+                            foreach (var topic in SelectedBrokerEntity.Topics)
+                            {
+                                AddTopicViewModel(new TopicViewModel(_messageTracker) { Title = topic });
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-        //public async void FileSaveAs()
-        //{
-        //    if (GetFileViewModel() is SubscribeViewModel fileViewModel)
-        //    {
-        //        await FileSaveAsImpl(fileViewModel);
-        //    }
-        //}
+        public async void FileSaveCommand()
+        {
+            if (SelectedBrokerEntity != null)
+            {
+                if (string.IsNullOrEmpty(SelectedBrokerEntity.FilePath))
+                {
+                    await FileSaveAsImpl(SelectedBrokerEntity);
+                }
+                else
+                {
+                    SaveFileViewModel(SelectedBrokerEntity);
+                }
+            }
+        }
 
-        //public async Task FileSaveAsImpl(SubscribeViewModel fileViewModel)
-        //{
-        //    var dlg = new SaveFileDialog();
-        //    dlg.Filters.Add(new FileDialogFilter() { Name = "Text document", Extensions = { "txt" } });
-        //    dlg.Filters.Add(new FileDialogFilter() { Name = "All", Extensions = { "*" } });
-        //    dlg.InitialFileName = fileViewModel.Title;
-        //    dlg.DefaultExtension = "txt";
-        //    var result = await dlg.ShowAsync(GetWindow());
-        //    if (result != null)
-        //    {
-        //        if (!string.IsNullOrEmpty(result))
-        //        {
-        //            UpdateFileViewModel(fileViewModel, result);
-        //            SaveFileViewModel(fileViewModel);
-        //        }
-        //    }
-        //}
+        public async void FileSaveAsCommand()
+        {
+            if (SelectedBrokerEntity != null)
+            {
+                await FileSaveAsImpl(SelectedBrokerEntity);
+            }
+        }
 
-        public void FileExit()
+        public async Task FileSaveAsImpl(BrokerEntity fileViewModel)
+        {
+            var dlg = new SaveFileDialog();
+            dlg.Filters.Add(new FileDialogFilter() { Name = "MQTT Sniffer config", Extensions = { "json" } });
+            dlg.InitialFileName = fileViewModel.ProfileName;
+            dlg.DefaultExtension = "json";
+            var result = await dlg.ShowAsync(GetWindow());
+            if (result != null)
+            {
+                if (!string.IsNullOrEmpty(result))
+                {
+                    UpdateFileViewModel(fileViewModel, result);
+                    SaveFileViewModel(fileViewModel);
+                }
+            }
+        }
+
+        public void FileExitCommand()
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {
                 desktopLifetime.Shutdown();
             }
         }
+        #endregion
 
+        #region EditCommands
+        public async void EditSettingsCommand()
+        {
+            var edit = new EditBrokerDialog();
+
+            EditBrokerDialogViewModel editBrokerViewModel = new EditBrokerDialogViewModel(SelectedBrokerEntity);
+            edit.DataContext = editBrokerViewModel;
+            var result = await edit.ShowDialog<string>(GetWindow());
+            if (Constants.SAVE.Equals(result))
+            {
+                // save
+                SelectedBrokerEntity = editBrokerViewModel.GetEntity();
+                _connectTracker.CanConnect(true);
+            }
+        }
+
+        #endregion
+        #region DragDrop
         public void DragOver(object? sender, DragEventArgs e)
         {
             if (!e.Data.Contains(DataFormats.FileNames))
@@ -425,7 +410,9 @@ namespace MQTTSniffer.ViewModels
                 targetFiles.ActiveDockable = sourceFiles.ActiveDockable;
             }
         }
+        #endregion
 
+        #region WindowLayout
         public async void WindowSaveWindowLayout()
         {
             if (GetWindow() is Window onwer)
@@ -503,7 +490,7 @@ namespace MQTTSniffer.ViewModels
                 }
             }
         }
-
+        #endregion
         private Window? GetWindow()
         {
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)

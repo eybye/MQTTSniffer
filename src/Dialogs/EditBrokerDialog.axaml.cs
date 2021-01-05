@@ -21,10 +21,6 @@ namespace MQTTSniffer.Dialogs
             AvaloniaXamlLoader.Load(this);
         }
 
-        private void OnDeleteCommand(object sender, RoutedEventArgs e)
-        {
-            Close(Constants.DELETE);
-        }
         private void OnSaveCommand(object sender, RoutedEventArgs e)
         {
             Close(Constants.SAVE);

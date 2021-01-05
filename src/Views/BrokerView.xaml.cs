@@ -10,14 +10,6 @@ namespace MQTTSniffer.Views
         public BrokerView()
         {
             this.InitializeComponent();
-
-            this.DataContextChanged += BrokerView_DataContextChanged;
-        }
-
-        private void BrokerView_DataContextChanged(object? sender, System.EventArgs e)
-        {
-            var combobox = this.FindControl<ComboBox>("BrokerSelection");
-            combobox.SelectionChanged += (DataContext as MainWindowViewModel).BrokerSelectionChanged;
         }
 
         private void InitializeComponent()

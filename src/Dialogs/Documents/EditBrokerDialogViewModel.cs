@@ -1,29 +1,52 @@
 ﻿using MQTTSniffer.Model;
 using ReactiveUI;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace MQTTSniffer.Dialogs.Documents
 {
     public class EditBrokerDialogViewModel : ReactiveObject
     {
+        private string? _profileName;
+        private string? _brokerURL;
+        private uint? _brokerPort;
+        private string? _clientId;
+        private string? _protocolVersion;
+        private string? _userName;
+        private string? _password;
+
+        public ObservableCollection<string> ProtocolVersions { get; set; } = new ObservableCollection<string>();
         public EditBrokerDialogViewModel(BrokerEntity? brokerEntity=null)
         {
             _profileName = brokerEntity?.ProfileName;
             _brokerURL = brokerEntity?.URL;
             _brokerPort = brokerEntity?.Port;
             _clientId = brokerEntity?.ClientId;
+            _protocolVersion = brokerEntity?.ProtocolVersion.ToString();
             _userName = brokerEntity?.UserName;
             _password = brokerEntity?.Password;
-        }
 
-        private string? _profileName;
-        private string? _brokerURL;
-        private uint? _brokerPort;
-        private string? _clientId;
-        private string? _userName;
-        private string? _password;
+            foreach (var item in Enum.GetNames(typeof(BrokerEntity.eProtocolVersion)))
+            {
+                ProtocolVersions.Add(item);
+            }
+        }
+        public BrokerEntity GetEntity()
+        {
+            return new BrokerEntity
+            {
+                ProfileName = _profileName,
+                URL = _brokerURL,
+                Port = _brokerPort,
+                ClientId = _clientId,
+                UserName = _userName,
+                Password = _password,
+                ProtocolVersion = (BrokerEntity.eProtocolVersion)Enum.Parse(typeof(BrokerEntity.eProtocolVersion), _protocolVersion ?? BrokerEntity.eProtocolVersion.V310.ToString())
+            };
+        }
         public string? ProfileName
         {
             get => _profileName;
@@ -47,6 +70,11 @@ namespace MQTTSniffer.Dialogs.Documents
             set => this.RaiseAndSetIfChanged(ref _clientId, value);
         }
 
+        public string? SelectedProtocolVersion
+        {
+            get => _protocolVersion;
+            set => this.RaiseAndSetIfChanged(ref _protocolVersion, value);
+        }
         public string? UserName
         {
             get => _userName;

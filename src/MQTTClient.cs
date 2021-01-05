@@ -19,7 +19,6 @@ namespace MQTTSniffer
 {
     public class MQTTClient : IDisposable, IMqttApplicationMessageReceivedHandler, IMqttClientConnectedHandler, IMqttClientDisconnectedHandler
     {
-        //private readonly ILogger _log = Program.LoggerFactory.CreateLogger("WatchdogTester.GatewayClient");
         private readonly ILogger _log = Program.MyLoggerFactory.CreateLogger("MQTTClient");
 
         enum ConnectResult
@@ -222,7 +221,7 @@ namespace MQTTSniffer
             return _client.PublishAsync(mqttMsg);
         }
 
-        internal Task Subscribe(string topic)
+        internal Task SubscribeAsync(string topic)
         {
             var topicT = new MqttTopicFilterBuilder()
                                 .WithTopic(topic)
@@ -230,6 +229,10 @@ namespace MQTTSniffer
                                 .Build();
 
             return _client.SubscribeAsync(topicT);
+        }
+        internal Task UnsubscribeAsync(string topic)
+        {
+            return _client.UnsubscribeAsync(topic);
         }
 
         #region IDisposable Support

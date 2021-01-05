@@ -23,8 +23,6 @@ namespace MQTTSniffer
         {
             var mainWindowViewModel = new MainWindowViewModel();
 
-            //mainWindowViewModel.Serializer = new DockSerializer(typeof(ObservableCollection<>));
-
             var factory = new MQTTSnifferFactory();
             IDock? layout = null;
 

@@ -18,6 +18,8 @@ namespace MQTTSniffer.ViewModels.Documents
         private IDisposable _messageTrackerDisposable;
         private Regex? _regex;
         private string _selectedContent;
+        // is fired when this doc is closed
+        public event EventHandler OnClosedEvent;
 
         private MQTTMessage _selectedItem;
         public MQTTMessage SelectedItem
@@ -43,6 +45,7 @@ namespace MQTTSniffer.ViewModels.Documents
 
         public override bool OnClose()
         {
+            OnClosedEvent?.Invoke(this, new EventArgs());
             _messageTrackerDisposable?.Dispose();
             return base.OnClose();
         }

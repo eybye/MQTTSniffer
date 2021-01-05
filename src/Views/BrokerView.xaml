@@ -7,17 +7,8 @@
              xmlns:idc="clr-namespace:Dock.Avalonia.Controls;assembly=Dock.Avalonia"
              mc:Ignorable="d"
              d:DesignWidth="800" d:DesignHeight="40">
-  <Grid ColumnDefinitions="50,300,Auto,Auto,Auto" RowDefinitions="*" HorizontalAlignment="Left" Margin="4">
-    <TextBlock Grid.Row="0" Grid.Column="0" Text="Broker" VerticalAlignment="Center" />
-    <ComboBox x:Name="BrokerSelection" Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" Items="{Binding BrokerEntities}" SelectedItem="{Binding SelectedBrokerEntity}" IsEnabled="{Binding BrokerSelectionEnabled}" >
-      <ComboBox.ItemTemplate>
-        <DataTemplate>
-          <TextBlock Text="{Binding ProfileName}" />
-        </DataTemplate>
-      </ComboBox.ItemTemplate>
-    </ComboBox>
-    <Button Grid.Row="0" Grid.Column="2" Content="{Binding AddEditName}" Margin="5,0,0,0" Command="{Binding OnEditBrokerUrlCommand}" />
-    <Button Grid.Row="0" Grid.Column="3" Content="Connect" Margin="5,0,0,0" Command="{Binding OnConnectCommand}" />
-    <Button Grid.Row="0" Grid.Column="4" Content="Disconnect" Margin="5,0,0,0" Command="{Binding OnDisconnectCommand}" />
+  <Grid ColumnDefinitions="Auto,Auto,Auto" RowDefinitions="*" HorizontalAlignment="Left" Margin="4">
+    <Button Grid.Row="0" Grid.Column="0" Content="Connect" Margin="5,0,0,0" Command="{Binding OnConnectCommand}" />
+    <Button Grid.Row="0" Grid.Column="1" Content="Disconnect" Margin="5,0,0,0" Command="{Binding OnDisconnectCommand}" />
   </Grid>
 </UserControl>

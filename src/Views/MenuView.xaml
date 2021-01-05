@@ -9,29 +9,16 @@
              d:DesignWidth="1280" d:DesignHeight="20">
     <Menu>
         <MenuItem Header="_File">
-          <!--MenuItem Header="_New" Command="{Binding FileNew}"/>
-            <MenuItem Header="_Open..." Command="{Binding FileOpen}"/>
-            <MenuItem Header="Save" Command="{Binding FileSave}"/>
-            <MenuItem Header="Save _As..." Command="{Binding FileSaveAs}"/>
-            <Separator/ -->
-            <MenuItem Header="E_xit" Command="{Binding FileExit}"/>
+          <MenuItem Header="_New" Command="{Binding FileNewCommand}"/>
+            <MenuItem Header="_Open..." Command="{Binding FileOpenCommand}"/>
+            <MenuItem Header="Save" Command="{Binding FileSaveCommand}"/>
+            <MenuItem Header="Save _As..." Command="{Binding FileSaveAsCommand}"/>
+            <Separator/>
+            <MenuItem Header="E_xit" Command="{Binding FileExitCommand}"/>
         </MenuItem>
-      <!--MenuItem Header="_Edit">
-            <MenuItem Header="_Undo"/>
-            <Separator/>
-            <MenuItem Header="Cu_t"/>
-            <MenuItem Header="_Copy"/>
-            <MenuItem Header="_Paste"/>
-            <MenuItem Header="_Delete"/>
-            <Separator/>
-            <MenuItem Header="_Find..."/>
-            <MenuItem Header="Find _Next"/>
-            <MenuItem Header="_Replace..."/>
-            <MenuItem Header="_Go to..."/>
-            <Separator/>
-            <MenuItem Header="Select _All"/>
-            <MenuItem Header="_Time/date"/>
-        </MenuItem-->
+      <MenuItem Header="_Edit">
+        <MenuItem Header="_Settings..." Command="{Binding EditSettingsCommand}"/>
+      </MenuItem>
       <!--MenuItem Header="_Format">
             <MenuItem Header="_Wrap lines"/>
             <MenuItem Header="_Font..."/>
