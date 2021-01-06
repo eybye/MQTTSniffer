@@ -147,6 +147,8 @@ namespace MQTTSniffer.ViewModels
             fileViewModel.FileName = Path.GetFileName(path);
         }
 
+        private List<TopicViewModel> _topicViewModels = new List<TopicViewModel>();
+
         private void AddTopicViewModel(TopicViewModel topicViewModel)
         {
             if (Layout?.ActiveDockable is IDock active)
@@ -156,10 +158,20 @@ namespace MQTTSniffer.ViewModels
                     Factory?.AddDockable(dock, topicViewModel);
                     Factory?.SetActiveDockable(topicViewModel);
                     Factory?.SetFocusedDockable(Layout, topicViewModel);
-
+                    
                     topicViewModel.OnClosedEvent += TopicViewModel_OnClosedEvent;
+
+                    _topicViewModels.Add(topicViewModel);
                 }
             }
+        }
+        private void CloseAllTopicViews()
+        {
+            foreach (var item in _topicViewModels)
+            {
+                Factory?.RemoveDockable(item, true);
+            }
+            _topicViewModels.Clear();
         }
 
         private TopicViewModel? GetActiveTopicViewModel()
@@ -172,20 +184,6 @@ namespace MQTTSniffer.ViewModels
                 }
             }
             return null;
-        }
-
-        private IEnumerable<TopicViewModel> GetAllTopicViewModels()
-        {
-            List<TopicViewModel> views = new List<TopicViewModel>();
-            if (Layout?.ActiveDockable is IDock active)
-            {
-                if (active.Factory?.FindDockable(active, (d) => d.Id == DocumentsDockId) is IDock dock)
-                {
-                    if (dock.ActiveDockable is TopicViewModel tvm)
-                        views.Add(tvm);
-                }
-            }
-            return views;
         }
 
         public async void NewSubscriptionCommand()
@@ -224,6 +222,7 @@ namespace MQTTSniffer.ViewModels
                 if (SelectedBrokerEntity != null && SelectedBrokerEntity.Topics.Contains(tvm.Title))
                     SelectedBrokerEntity.Topics.Remove(tvm.Title);
 
+                _topicViewModels.Remove(tvm);
                 // unsubscribe
                 if (_client != null)
                     await _client.UnsubscribeAsync(tvm.Title);
@@ -282,8 +281,12 @@ namespace MQTTSniffer.ViewModels
                         SelectedBrokerEntity = OpenFileViewModel(path);
                         if (SelectedBrokerEntity != null)
                         {
+                            if (_client != null)
+                            {
+                                OnDisconnectAction();
+                            }
                             _connectTracker.CanConnect(true);
-
+                            CloseAllTopicViews();
                             foreach (var topic in SelectedBrokerEntity.Topics)
                             {
                                 AddTopicViewModel(new TopicViewModel(_messageTracker) { Title = topic });
@@ -321,7 +324,7 @@ namespace MQTTSniffer.ViewModels
         {
             var dlg = new SaveFileDialog();
             dlg.Filters.Add(new FileDialogFilter() { Name = "MQTT Sniffer config", Extensions = { "json" } });
-            dlg.InitialFileName = fileViewModel.ProfileName;
+            //dlg.InitialFileName = fileViewModel.ProfileName;
             dlg.DefaultExtension = "json";
             var result = await dlg.ShowAsync(GetWindow());
             if (result != null)

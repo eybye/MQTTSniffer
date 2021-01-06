@@ -14,6 +14,7 @@ using MQTTnet.Client.Connecting;
 using MQTTnet.Client.Disconnecting;
 using MQTTnet.Client.Options;
 using MQTTSniffer.Model;
+using System.Text;
 
 namespace MQTTSniffer
 {
@@ -80,8 +81,6 @@ namespace MQTTSniffer
             if (_client != null) Stop();
             _isStopping = false;
 
-            bool secure = false;
-
             var logger = new MqttNetLogger("MQTTSniffer");
             logger.LogMessagePublished += (sender, args) => { _log.LogDebug(args.LogMessage.Message); };
 
@@ -112,19 +111,12 @@ namespace MQTTSniffer
                     server.Port = port;
                 });
 
-            if (secure)
+            if (brokerEntity.TlsEnabled && !string.IsNullOrEmpty(brokerEntity.ClientCertificate))
             {
-                string certName = string.Empty;
-                if (string.IsNullOrEmpty(certName))
-                    throw new ArgumentException("Missing certificate from configuration");
+                X509Certificate x509ServerCert = new X509Certificate2(Encoding.ASCII.GetBytes(brokerEntity.ClientCertificate));
 
-                string loc = System.Reflection.Assembly.GetExecutingAssembly().Location;
-                loc = loc.Substring(0, loc.LastIndexOf(Path.DirectorySeparatorChar));
-                string certFile = Path.Combine(loc, certName);
-                X509Certificate x509ServerCert = new X509Certificate2(certFile);
-
-                string clientCert = string.Empty;
-                X509Certificate x509ClientCert = new X509Certificate2(Path.Combine(loc, clientCert), "test");
+                //string clientCert = string.Empty;
+                //X509Certificate x509ClientCert = new X509Certificate2(Path.Combine(loc, clientCert), "test");
 
                 options = options.WithTls(opt =>
                 {

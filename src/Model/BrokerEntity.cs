@@ -13,13 +13,14 @@ namespace MQTTSniffer.Model
             V311,
             V500
         }
-        public string? ProfileName { get; set; }
         public string? URL { get; set; }
         public uint? Port { get; set; }
         public eProtocolVersion? ProtocolVersion { get; set; }
         public string? ClientId { get; set; }
         public string? UserName { get; set; }
         public string? Password { get; set; }
+        public bool TlsEnabled { get; set; }
+        public string? ClientCertificate { get; set; }
 
         public List<string> Topics { get; set; } = new List<string>();
 
@@ -32,13 +33,15 @@ namespace MQTTSniffer.Model
         {
             return new BrokerEntity
             {
-                ProfileName = this.ProfileName,
                 URL = this.URL,
                 Port = this.Port,
                 ProtocolVersion = this.ProtocolVersion,
                 ClientId = this.ClientId,
                 UserName = this.UserName,
-                Password = this.Password
+                Password = this.Password,
+                TlsEnabled = this.TlsEnabled,
+                ClientCertificate = this.ClientCertificate,
+                Topics = new List<string>(this.Topics)
             };
         }
     }

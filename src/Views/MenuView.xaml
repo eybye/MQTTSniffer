@@ -42,7 +42,7 @@
         </MenuItem>
         <MenuItem Header="_Help">
             <MenuItem Header="Get _Help"/>
-            <MenuItem Header="Notepad - _About"/>
+            <MenuItem Header="_About"/>
         </MenuItem>
     </Menu>
 </UserControl>

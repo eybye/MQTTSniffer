@@ -6,31 +6,42 @@
         Width="400" Height="450"
         x:Class="MQTTSniffer.Dialogs.EditBrokerDialog"        
         Title="Edit Broker">
-  <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,*">
-    <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="Auto,240,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="5">
-      <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="Broker settings" VerticalAlignment="Center" FontWeight="Medium" />
-      <TextBlock Grid.Row="1" Grid.Column="0" Text="Profile name:" VerticalAlignment="Center" />
-      <TextBox Grid.Row="1" Grid.Column="1" Margin="5,5,0,0" Text="{Binding ProfileName}" />
-      <TextBlock Grid.Row="2" Grid.Column="0" Text="Broker URL:" VerticalAlignment="Center" />
-      <TextBox Grid.Row="2" Grid.Column="1" Margin="5,5,0,0" Text="{Binding BrokerURL}" />
-      <TextBlock Grid.Row="3" Grid.Column="0" Text="Broker Port:" VerticalAlignment="Center" />
-      <TextBox Grid.Row="3" Grid.Column="1" Margin="5,5,0,0" Text="{Binding BrokerPort}" />
-      <TextBlock Grid.Row="4" Grid.Column="0" Text="Client Id:" VerticalAlignment="Center" />
-      <TextBox Grid.Row="4" Grid.Column="1" Margin="5,5,0,0" Text="{Binding ClientId}" />
-      <Button Grid.Row="4" Grid.Column="2" Content="Generate" Margin="5,5,0,0" Command="{Binding OnMQTTClientIdGenerateCommand}" />
-      <TextBlock Grid.Row="5" Grid.Column="0" Text="Protocol:" VerticalAlignment="Center" />
-      <ComboBox Grid.Row="5" Grid.Column="1" Margin="5,5,0,0" Items="{Binding ProtocolVersions}" SelectedItem="{Binding SelectedProtocolVersion}">
-      </ComboBox>
+  <Grid ColumnDefinitions="*" RowDefinitions="Auto,Auto,Auto,*" Margin="5">
+    <TextBlock Grid.Row="0" Grid.Column="0" Text="Broker settings" VerticalAlignment="Center" FontWeight="Medium" FontSize="16" Margin="0,5,0,15"/>
+    <Grid Grid.Row="1" Grid.Column="0" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+      <TextBlock Grid.Row="1" Grid.Column="0" Text="Broker URL" VerticalAlignment="Center" />
+      <TextBox Grid.Row="1" Grid.Column="1" Margin="5,5,0,0" Text="{Binding BrokerURL}" />
+      <TextBlock Grid.Row="2" Grid.Column="0" Text="Broker Port" VerticalAlignment="Center" />
+      <TextBox Grid.Row="2" Grid.Column="1" Margin="5,5,0,0" Text="{Binding BrokerPort}" />
+      <TextBlock Grid.Row="3" Grid.Column="0" Text="Client Id" VerticalAlignment="Center" />
+      <TextBox Grid.Row="3" Grid.Column="1" Margin="5,5,0,0" Text="{Binding ClientId}" />
+      <Button Grid.Row="3" Grid.Column="2" Content="Generate" Margin="5,5,0,0" Command="{Binding OnMQTTClientIdGenerateCommand}" />
+      <TextBlock Grid.Row="4" Grid.Column="0" Text="Protocol version" VerticalAlignment="Center" />
+      <ComboBox Grid.Row="4" Grid.Column="1" Margin="5,5,0,0" Items="{Binding ProtocolVersions}" SelectedItem="{Binding SelectedProtocolVersion}"/>
     </Grid>
-    <Grid Grid.Row="1" Grid.Column="0" ColumnDefinitions="Auto,240,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Margin="5,20,5,5">
-      <TextBlock Grid.Row="0" Grid.Column="0" Text="Security" VerticalAlignment="Center" FontWeight="Medium" />
-      <TextBlock Grid.Row="1" Grid.Column="0" Text="Username:" VerticalAlignment="Center" />
-      <TextBox Grid.Row="1" Grid.Column="1" Margin="5,5,0,0" Text="{Binding UserName}" />
-      <TextBlock Grid.Row="2" Grid.Column="0" Text="Password:" VerticalAlignment="Center" />
-      <TextBox Grid.Row="2" Grid.Column="1" Margin="5,5,0,0" Text="{Binding Password}" PasswordChar="*" />
-    </Grid>
-    <Grid Grid.Row="2" Grid.Column="0" ColumnDefinitions="50,50,Auto" RowDefinitions="*" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
-      <Button Grid.Row="0" Grid.Column="1" Content="Save" Margin="5,0,0,0" Click="OnSaveCommand" />
+    <TextBlock Grid.Row="2" Text="Security" VerticalAlignment="Center" FontWeight="Medium" FontSize="16" Margin="0,15,0,15"/>
+    <Border  Grid.Row="3" BorderBrush="Black" BorderThickness="1">
+    <TabControl>
+      <TabItem Header="Basic" Margin="5,5">
+        <Grid ColumnDefinitions="Auto,240,Auto" RowDefinitions="Auto,Auto,Auto,Auto" Margin="5,20,5,5">
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="Username" VerticalAlignment="Center" />
+          <TextBox Grid.Row="1" Grid.Column="1" Margin="5,5,0,0" Text="{Binding UserName}" />
+          <TextBlock Grid.Row="2" Grid.Column="0" Text="Password" VerticalAlignment="Center" />
+          <TextBox Grid.Row="2" Grid.Column="1" Margin="5,5,0,0" Text="{Binding Password}" PasswordChar="*" />
+        </Grid>
+      </TabItem>
+      <TabItem Header="TLS" Margin="5,5">
+        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,*" Margin="5" >
+          <ToggleButton Grid.Row="0" Content="{Binding TlsEnabledText}" IsChecked="{Binding IsOnTlsEnabled}"/>
+          <TextBlock Grid.Row="1" Grid.Column="0" Text="Broker certificate" VerticalAlignment="Center" IsVisible="{Binding IsOnTlsEnabled}" />
+          <TextBox Grid.Row="1" Grid.Column="1" Margin="5,5,0,0" MaxHeight="50" Text="{Binding ClientCertificateText}" IsVisible="{Binding IsOnTlsEnabled}"/>
+          <Button Grid.Row="1" Grid.Column="2" Content="..." Margin="5,5,0,0" Command="{Binding OnLoadClientCertCommand}" IsVisible="{Binding IsOnTlsEnabled}" />
+        </Grid>
+      </TabItem>
+    </TabControl>
+    </Border>
+    <Grid Grid.Row="4" Grid.Column="0" ColumnDefinitions="50,50,Auto" RowDefinitions="*" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+      <Button Grid.Row="0" Grid.Column="1" Content="OK" Margin="5,0,0,0" Click="OnSaveCommand" />
       <Button Grid.Row="0" Grid.Column="2" Content="Cancel" Margin="5,0,0,0" Click="OnCancelCommand" />
     </Grid>
   </Grid>
