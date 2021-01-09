@@ -40,6 +40,10 @@ namespace MQTTSniffer.Dialogs.Documents
                 _isOnTlsEnabled = brokerEntity.TlsEnabled;
                 _clientCertificateText = brokerEntity.ClientCertificate;
             }
+            else
+            {
+                _entityCopy = new BrokerEntity();
+            }
             foreach (var item in Enum.GetNames(typeof(BrokerEntity.eProtocolVersion)))
             {
                 ProtocolVersions.Add(item);
