@@ -28,7 +28,8 @@ namespace MQTTSniffer.Model
         public string FilePath = string.Empty;
         [Newtonsoft.Json.JsonIgnore]
         public string FileName = string.Empty;
-
+        [Newtonsoft.Json.JsonIgnore]
+        public bool IsDirty = false;
         public object Clone()
         {
             return new BrokerEntity

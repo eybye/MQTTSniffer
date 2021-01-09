@@ -10,11 +10,11 @@
     <Menu>
         <MenuItem Header="_File">
           <MenuItem Header="_New" Command="{Binding FileNewCommand}"/>
-            <MenuItem Header="_Open..." Command="{Binding FileOpenCommand}"/>
-            <MenuItem Header="Save" Command="{Binding FileSaveCommand}"/>
-            <MenuItem Header="Save _As..." Command="{Binding FileSaveAsCommand}"/>
-            <Separator/>
-            <MenuItem Header="E_xit" Command="{Binding FileExitCommand}"/>
+          <MenuItem Header="_Open..." Command="{Binding FileOpenCommand}"/>
+          <MenuItem Header="Save" Command="{Binding FileSaveCommand}"/>
+          <MenuItem Header="Save _As..." Command="{Binding FileSaveAsCommand}"/>
+          <Separator/>
+          <MenuItem Header="E_xit" Command="{Binding FileExitCommand}"/>
         </MenuItem>
       <MenuItem Header="_Edit">
         <MenuItem Header="_Settings..." Command="{Binding EditSettingsCommand}"/>

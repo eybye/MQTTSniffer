@@ -24,7 +24,7 @@ namespace MQTTSniffer.ViewModels
     public class MainWindowViewModel : ReactiveObject, IDropTarget, IMainContext//, IActivatableViewModel
     {
         public const string DocumentsDockId = "Topics";
-
+        private string _titleText = "MQTT Sniffer";
         private IFactory? _factory;
         private IDock? _layout;
         private MQTTClient? _client = null;
@@ -50,6 +50,11 @@ namespace MQTTSniffer.ViewModels
             set => this.RaiseAndSetIfChanged(ref _layout, value);
         }
 
+        public string TitleText
+        {
+            get => _titleText;
+            set => this.RaiseAndSetIfChanged(ref _titleText, value);
+        }
         private class Unsubscriber : IDisposable
         {
             private List<IObserver<Boolean>> _observers;
@@ -112,7 +117,19 @@ namespace MQTTSniffer.ViewModels
                 return reader.CurrentEncoding;
             }
         }
-
+        private void UpdateTitle()
+        {
+            if (SelectedBrokerEntity != null)
+            {
+                TitleText = $"MQTT Sniffer - {SelectedBrokerEntity.FileName}";
+                if (SelectedBrokerEntity.IsDirty)
+                    TitleText += "*";
+            }
+            else
+            {
+                TitleText = "MQTT Sniffer";
+            }
+        }
         private BrokerEntity? OpenFileViewModel(string path)
         {
             Encoding encoding = GetEncoding(path);
@@ -139,12 +156,17 @@ namespace MQTTSniffer.ViewModels
             JObject j = JObject.FromObject(fileViewModel);
 
             File.WriteAllText(fileViewModel.FilePath, j.ToString(Newtonsoft.Json.Formatting.Indented), Encoding.UTF8);
+            if (SelectedBrokerEntity != null)
+                SelectedBrokerEntity.IsDirty = false;
+            UpdateTitle();
         }
 
         private void UpdateFileViewModel(BrokerEntity fileViewModel, string path)
         {
             fileViewModel.FilePath = path;
             fileViewModel.FileName = Path.GetFileName(path);
+
+            UpdateTitle();
         }
 
         private List<TopicViewModel> _topicViewModels = new List<TopicViewModel>();
@@ -206,7 +228,11 @@ namespace MQTTSniffer.ViewModels
                 };
                 AddTopicViewModel(topicViewModel);
                 if (SelectedBrokerEntity != null && !SelectedBrokerEntity.Topics.Contains(SubscribeTopic))
+                {
                     SelectedBrokerEntity.Topics.Add(SubscribeTopic);
+                    SelectedBrokerEntity.IsDirty = true;
+                    UpdateTitle();
+                }
 
                 if (_client != null)
                     await _client.SubscribeAsync(SubscribeTopic);
@@ -218,9 +244,13 @@ namespace MQTTSniffer.ViewModels
             if (sender is TopicViewModel tvm)
             {
                 tvm.OnClosedEvent -= TopicViewModel_OnClosedEvent;
-                
+
                 if (SelectedBrokerEntity != null && SelectedBrokerEntity.Topics.Contains(tvm.Title))
+                {
                     SelectedBrokerEntity.Topics.Remove(tvm.Title);
+                    SelectedBrokerEntity.IsDirty = true;
+                    UpdateTitle();
+                }
 
                 _topicViewModels.Remove(tvm);
                 // unsubscribe
@@ -266,6 +296,19 @@ namespace MQTTSniffer.ViewModels
         }
 
         #region FileCommands
+
+        public void FileNewCommand()
+        {
+            if (_client != null)
+            {
+                OnDisconnectAction();
+            }
+            _connectTracker.CanConnect(false);
+
+            SelectedBrokerEntity = null;
+            UpdateTitle();
+            CloseAllTopicViews();
+        }
         public async void FileOpenCommand()
         {
             var dlg = new OpenFileDialog();
@@ -285,6 +328,7 @@ namespace MQTTSniffer.ViewModels
                             {
                                 OnDisconnectAction();
                             }
+                            UpdateTitle();
                             _connectTracker.CanConnect(true);
                             CloseAllTopicViews();
                             foreach (var topic in SelectedBrokerEntity.Topics)
