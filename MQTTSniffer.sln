@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTSniffer", "src\MQTTSniffer.csproj", "{A775AA08-2FDA-49F1-9116-557FCDDF556B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTSniffer.Common", "..\Common\src\MQTTSniffer.Common\MQTTSniffer.Common.csproj", "{8F93334D-AE31-4157-96D9-E7DF8C4288C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MQTTSniffer.Common", "common\src\MQTTSniffer.Common.csproj", "{091ED216-1C2B-449C-B2E2-F55A55B1CA51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{A775AA08-2FDA-49F1-9116-557FCDDF556B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A775AA08-2FDA-49F1-9116-557FCDDF556B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A775AA08-2FDA-49F1-9116-557FCDDF556B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8F93334D-AE31-4157-96D9-E7DF8C4288C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8F93334D-AE31-4157-96D9-E7DF8C4288C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8F93334D-AE31-4157-96D9-E7DF8C4288C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8F93334D-AE31-4157-96D9-E7DF8C4288C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{091ED216-1C2B-449C-B2E2-F55A55B1CA51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{091ED216-1C2B-449C-B2E2-F55A55B1CA51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{091ED216-1C2B-449C-B2E2-F55A55B1CA51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{091ED216-1C2B-449C-B2E2-F55A55B1CA51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
