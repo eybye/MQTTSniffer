@@ -7,7 +7,7 @@
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <IsPackable>False</IsPackable>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -31,6 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="ScriptEngine.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Views\BrokerView.xaml" />
     <None Remove="Views\SubscribeView.xaml" />
   </ItemGroup>
@@ -43,14 +47,16 @@
     <PackageReference Include="Dock.Avalonia" Version="0.10.0-rc1" />
     <PackageReference Include="Dock.Avalonia.Themes.Default" Version="0.10.0-rc1" />
     <PackageReference Include="Dock.Model.ReactiveUI" Version="0.10.0-rc1" />
-    <PackageReference Include="Microsoft.ClearScript" Version="7.0.0" />
-    <PackageReference Include="Microsoft.ClearScript.V8.Native.linux-x64" Version="7.0.0" />
-    <PackageReference Include="Microsoft.ClearScript.V8.Native.osx-x64" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
     <PackageReference Include="MQTTnet" Version="3.0.13" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Composition.AttributedModel" Version="5.0.1" />
+    <PackageReference Include="System.Composition.Hosting" Version="5.0.1" />
+    <PackageReference Include="System.Composition.Runtime" Version="5.0.1" />
+    <PackageReference Include="System.Composition.TypedParts" Version="5.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\src\MQTTSniffer.Common\MQTTSniffer.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

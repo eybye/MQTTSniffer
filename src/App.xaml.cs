@@ -9,6 +9,7 @@ using Dock.Model.Controls;
 using MQTTSniffer.ViewModels;
 using MQTTSniffer.Views;
 using ReactiveUI.Legacy;
+using Splat;
 
 namespace MQTTSniffer
 {
@@ -16,6 +17,7 @@ namespace MQTTSniffer
     {
         public override void Initialize()
         {
+            Bootstrapper.Register(Locator.CurrentMutable, Locator.Current); // note that I'm passing Splat service locators as parameters
             AvaloniaXamlLoader.Load(this);
         }
 

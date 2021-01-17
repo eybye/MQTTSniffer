@@ -8,6 +8,8 @@ using Avalonia.Controls;
 using Dock.Model.Controls;
 using MQTTSniffer.Model;
 using ReactiveUI;
+using MQTTSniffer.Common;
+using MQTTSniffer.Services;
 
 namespace MQTTSniffer.ViewModels.Documents
 {
@@ -18,6 +20,7 @@ namespace MQTTSniffer.ViewModels.Documents
         private IDisposable _messageTrackerDisposable;
         private Regex? _regex;
         private string _selectedContent;
+        private readonly IIEncoderDecoderService _encoderDecoderService;
         // is fired when this doc is closed
         public event EventHandler OnClosedEvent;
 
@@ -28,7 +31,8 @@ namespace MQTTSniffer.ViewModels.Documents
             set
             {
                 _selectedItem = value;
-                SelectedContent = Encoding.UTF8.GetString(_selectedItem.Payload);
+                if (_selectedEncodeDeocder != null)
+                    SelectedContent = _selectedEncodeDeocder.Decode(_selectedItem.Topic, _selectedItem.Payload);// Encoding.UTF8.GetString(_selectedItem.Payload);
             }
         }
 
@@ -38,9 +42,28 @@ namespace MQTTSniffer.ViewModels.Documents
             set => this.RaiseAndSetIfChanged(ref _selectedContent, value);
         }
 
-        public TopicViewModel(MQTTMessageTracker tracker)
+        public ObservableCollection<string> Decoders { get; set; } = new ObservableCollection<string>();
+
+        private IEncoderDecoder _selectedEncodeDeocder;
+        private string? _selectedDecoderName;
+        public string? SelectedDecoder
+        {
+            get => _selectedDecoderName;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedDecoderName, value);
+                _selectedEncodeDeocder = _encoderDecoderService.GetDecoder(value);
+            }
+        }
+
+        public TopicViewModel(MQTTMessageTracker tracker, IIEncoderDecoderService encodeDecodeService)
         {
             _messageTrackerDisposable = tracker.Subscribe(this);
+            _encoderDecoderService = encodeDecodeService;
+            foreach (var decoder in _encoderDecoderService.GetDecoderNames())
+            {
+                Decoders.Add(decoder);
+            }
         }
 
         public override bool OnClose()

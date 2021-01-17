@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using MQTTnet.Client;
@@ -15,13 +13,12 @@ using MQTTnet.Client.Disconnecting;
 using MQTTnet.Client.Options;
 using MQTTSniffer.Model;
 using System.Text;
+using Splat;
 
 namespace MQTTSniffer
 {
-    public class MQTTClient : IDisposable, IMqttApplicationMessageReceivedHandler, IMqttClientConnectedHandler, IMqttClientDisconnectedHandler
+    public class MQTTClient : IDisposable, IEnableLogger, IMqttApplicationMessageReceivedHandler, IMqttClientConnectedHandler, IMqttClientDisconnectedHandler
     {
-        private readonly ILogger _log = Program.MyLoggerFactory.CreateLogger("MQTTClient");
-
         enum ConnectResult
         {
             ConnectionAccepted = 0,
@@ -82,7 +79,7 @@ namespace MQTTSniffer
             _isStopping = false;
 
             var logger = new MqttNetLogger("MQTTSniffer");
-            logger.LogMessagePublished += (sender, args) => { _log.LogDebug(args.LogMessage.Message); };
+            logger.LogMessagePublished += (sender, args) => { this.Log().Debug(args.LogMessage.Message); };
 
             _client = new MqttFactory().CreateMqttClient(logger);
 
@@ -138,9 +135,10 @@ namespace MQTTSniffer
 
                 if (task.Status == TaskStatus.RanToCompletion)
                 {
-                    if (_log.IsEnabled(LogLevel.Debug)) _log.LogDebug($"Connect returned: {task.Result.ReasonString}");
+                    if (this.Log().IsDebugEnabled)
+                        this.Log().Debug($"Connect returned: {task.Result.ReasonString}");
 
-                    if (_log.IsEnabled(LogLevel.Information)) _log.LogInformation("Started");
+                    if (this.Log().IsInfoEnabled) this.Log().Info("Started");
 
                     Online = true;
                 }

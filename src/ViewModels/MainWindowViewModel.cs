@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive.Linq;
 using System.Text;
@@ -18,6 +17,10 @@ using MQTTSniffer.ViewModels.Documents;
 using MQTTSniffer.Views.Layouts;
 using Newtonsoft.Json.Linq;
 using ReactiveUI;
+using MQTTSniffer.Extensions;
+using MQTTSniffer.Common;
+using Splat;
+using MQTTSniffer.Services;
 
 namespace MQTTSniffer.ViewModels
 {
@@ -32,7 +35,7 @@ namespace MQTTSniffer.ViewModels
         private CanDisconnectTracker _disconnectTracker;
         private MQTTMessageTracker _messageTracker = new MQTTMessageTracker();
         private BrokerEntity? SelectedBrokerEntity;
-
+        private ExtensionImporter _extensionImporter;
         public IReactiveCommand OnConnectCommand { get; }
         public IReactiveCommand OnDisconnectCommand { get; }
 
@@ -106,6 +109,7 @@ namespace MQTTSniffer.ViewModels
             OnConnectCommand = ReactiveCommand.Create(() => OnConnectAction(), _connectTracker);
             OnDisconnectCommand = ReactiveCommand.Create(() => OnDisconnectAction(), _disconnectTracker);
         }
+        private IEncoderDecoder? _encodeDecode;
         private Encoding GetEncoding(string path)
         {
             using (var reader = new StreamReader(path, Encoding.Default, true))
@@ -222,7 +226,8 @@ namespace MQTTSniffer.ViewModels
                         return;
                     }
                 }
-                var topicViewModel = new TopicViewModel(_messageTracker)
+                var service = Bootstrapper.ServiceProvider.GetService<IIEncoderDecoderService>();
+                var topicViewModel = new TopicViewModel(_messageTracker, service)
                 {
                     Title = SubscribeTopic,
                 };
@@ -290,6 +295,7 @@ namespace MQTTSniffer.ViewModels
                 _disconnectTracker.CanDisconnect(false);
             }
         }
+
         private void MQTTMessageReceived(MQTTMessage message)
         {
             _messageTracker.NewMessage(message);
@@ -331,9 +337,10 @@ namespace MQTTSniffer.ViewModels
                             UpdateTitle();
                             _connectTracker.CanConnect(true);
                             CloseAllTopicViews();
+                            var service = Bootstrapper.ServiceProvider.GetService<IIEncoderDecoderService>();
                             foreach (var topic in SelectedBrokerEntity.Topics)
                             {
-                                AddTopicViewModel(new TopicViewModel(_messageTracker) { Title = topic });
+                                AddTopicViewModel(new TopicViewModel(_messageTracker, service) { Title = topic });
                             }
                         }
                     }
