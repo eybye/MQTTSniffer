@@ -53,6 +53,7 @@
     <PackageReference Include="System.Composition.Hosting" Version="5.0.1" />
     <PackageReference Include="System.Composition.Runtime" Version="5.0.1" />
     <PackageReference Include="System.Composition.TypedParts" Version="5.0.1" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
   </ItemGroup>
 
   <ItemGroup>
