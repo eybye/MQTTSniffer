@@ -7,9 +7,10 @@
              xmlns:idc="clr-namespace:Dock.Avalonia.Controls;assembly=Dock.Avalonia"
              mc:Ignorable="d"
              d:DesignWidth="1280" d:DesignHeight="40">
-  <Grid ColumnDefinitions="50,300,Auto" RowDefinitions="*" HorizontalAlignment="Left" Margin="4">
+  <Grid ColumnDefinitions="50,300,Auto,Auto" RowDefinitions="*" HorizontalAlignment="Left" Margin="4">
     <TextBlock Grid.Row="0" Grid.Column="0" Text="Topic" VerticalAlignment="Center" />
     <TextBox Grid.Row="0" Grid.Column="1" Margin="5,0,0,0" Text="{Binding SubscribeTopic}" Watermark="Enter topic here"  />
     <Button Grid.Row="0" Grid.Column="2" Content="Subscribe" Margin="5,0,0,0" Command="{Binding NewSubscriptionCommand}" />
+    <Button Grid.Row="0" Grid.Column="3" Content="Publish" Margin="5,0,0,0" Command="{Binding NewPublishCommand}" />
   </Grid>
 </UserControl>

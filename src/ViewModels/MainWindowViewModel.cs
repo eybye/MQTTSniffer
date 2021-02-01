@@ -244,6 +244,9 @@ namespace MQTTSniffer.ViewModels
             }
         }
 
+        public async void NewPublishCommand()
+        {
+        }
         private async void TopicViewModel_OnClosedEvent(object? sender, EventArgs e)
         {
             if (sender is TopicViewModel tvm)
