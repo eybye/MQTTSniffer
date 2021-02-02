@@ -173,40 +173,40 @@ namespace MQTTSniffer.ViewModels
             UpdateTitle();
         }
 
-        private List<TopicViewModel> _topicViewModels = new List<TopicViewModel>();
+        private List<SubscribeViewModel> _subscribeViewModels = new List<SubscribeViewModel>();
 
-        private void AddTopicViewModel(TopicViewModel topicViewModel)
+        private void AddSubscribeViewModel(SubscribeViewModel subscribeViewModel)
         {
             if (Layout?.ActiveDockable is IDock active)
             {
                 if (active.Factory?.FindDockable(active, (d) => d.Id == DocumentsDockId) is IDock dock)
                 {
-                    Factory?.AddDockable(dock, topicViewModel);
-                    Factory?.SetActiveDockable(topicViewModel);
-                    Factory?.SetFocusedDockable(Layout, topicViewModel);
+                    Factory?.AddDockable(dock, subscribeViewModel);
+                    Factory?.SetActiveDockable(subscribeViewModel);
+                    Factory?.SetFocusedDockable(Layout, subscribeViewModel);
                     
-                    topicViewModel.OnClosedEvent += TopicViewModel_OnClosedEvent;
+                    subscribeViewModel.OnClosedEvent += SubscribeViewModel_OnClosedEvent;
 
-                    _topicViewModels.Add(topicViewModel);
+                    _subscribeViewModels.Add(subscribeViewModel);
                 }
             }
         }
-        private void CloseAllTopicViews()
+        private void CloseAllSubscribeViews()
         {
-            foreach (var item in _topicViewModels)
+            foreach (var item in _subscribeViewModels)
             {
                 Factory?.RemoveDockable(item, true);
             }
-            _topicViewModels.Clear();
+            _subscribeViewModels.Clear();
         }
 
-        private TopicViewModel? GetActiveTopicViewModel()
+        private SubscribeViewModel? GetActiveSubscribeViewModel()
         {
             if (Layout?.ActiveDockable is IDock active)
             {
                 if (active.Factory?.FindDockable(active, (d) => d.Id == DocumentsDockId) is IDock dock)
                 {
-                    return dock.ActiveDockable as TopicViewModel;
+                    return dock.ActiveDockable as SubscribeViewModel;
                 }
             }
             return null;
@@ -227,11 +227,11 @@ namespace MQTTSniffer.ViewModels
                     }
                 }
                 var service = Bootstrapper.ServiceProvider.GetService<IIEncoderDecoderService>();
-                var topicViewModel = new TopicViewModel(_messageTracker, service)
+                var subscribeViewModel = new SubscribeViewModel(_messageTracker, service)
                 {
                     Title = SubscribeTopic,
                 };
-                AddTopicViewModel(topicViewModel);
+                AddSubscribeViewModel(subscribeViewModel);
                 if (SelectedBrokerEntity != null && !SelectedBrokerEntity.Topics.Contains(SubscribeTopic))
                 {
                     SelectedBrokerEntity.Topics.Add(SubscribeTopic);
@@ -247,11 +247,11 @@ namespace MQTTSniffer.ViewModels
         public async void NewPublishCommand()
         {
         }
-        private async void TopicViewModel_OnClosedEvent(object? sender, EventArgs e)
+        private async void SubscribeViewModel_OnClosedEvent(object? sender, EventArgs e)
         {
-            if (sender is TopicViewModel tvm)
+            if (sender is SubscribeViewModel tvm)
             {
-                tvm.OnClosedEvent -= TopicViewModel_OnClosedEvent;
+                tvm.OnClosedEvent -= SubscribeViewModel_OnClosedEvent;
 
                 if (SelectedBrokerEntity != null && SelectedBrokerEntity.Topics.Contains(tvm.Title))
                 {
@@ -260,7 +260,7 @@ namespace MQTTSniffer.ViewModels
                     UpdateTitle();
                 }
 
-                _topicViewModels.Remove(tvm);
+                _subscribeViewModels.Remove(tvm);
                 // unsubscribe
                 if (_client != null)
                     await _client.UnsubscribeAsync(tvm.Title);
@@ -316,7 +316,7 @@ namespace MQTTSniffer.ViewModels
 
             SelectedBrokerEntity = null;
             UpdateTitle();
-            CloseAllTopicViews();
+            CloseAllSubscribeViews();
         }
         public async void FileOpenCommand()
         {
@@ -339,11 +339,11 @@ namespace MQTTSniffer.ViewModels
                             }
                             UpdateTitle();
                             _connectTracker.CanConnect(true);
-                            CloseAllTopicViews();
+                            CloseAllSubscribeViews();
                             var service = Bootstrapper.ServiceProvider.GetService<IIEncoderDecoderService>();
                             foreach (var topic in SelectedBrokerEntity.Topics)
                             {
-                                AddTopicViewModel(new TopicViewModel(_messageTracker, service) { Title = topic });
+                                AddSubscribeViewModel(new SubscribeViewModel(_messageTracker, service) { Title = topic });
                             }
                         }
                     }

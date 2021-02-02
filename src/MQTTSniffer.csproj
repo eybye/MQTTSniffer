@@ -36,6 +36,7 @@
 
   <ItemGroup>
     <None Remove="Views\BrokerView.xaml" />
+    <None Remove="Views\Documents\PublishView.xaml" />
     <None Remove="Views\SubscribeView.xaml" />
   </ItemGroup>
 
@@ -61,6 +62,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AvaloniaResource Update="Views\Documents\PublishView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaResource>
     <AvaloniaResource Update="Views\SubscribeView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </AvaloniaResource>

@@ -23,7 +23,7 @@ namespace MQTTSniffer.ViewModels.Tools
             {
                 if (active.Factory?.FindDockable(active, (d) => d.Id == MainWindowViewModel.DocumentsDockId) is IDock files)
                 {
-                    if (files.ActiveDockable is TopicViewModel fileViewModel)
+                    if (files.ActiveDockable is SubscribeViewModel fileViewModel)
                     {
                         // TODO: 
                     }

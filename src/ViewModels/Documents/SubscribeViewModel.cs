@@ -13,7 +13,7 @@ using MQTTSniffer.Services;
 
 namespace MQTTSniffer.ViewModels.Documents
 {
-    public class TopicViewModel : Document, IObserver<MQTTMessage>
+    public class SubscribeViewModel : Document, IObserver<MQTTMessage>
     {
         public ObservableCollection<MQTTMessage> TopicItems { get; set; } = new ObservableCollection<MQTTMessage>();
 
@@ -56,7 +56,7 @@ namespace MQTTSniffer.ViewModels.Documents
             }
         }
 
-        public TopicViewModel(MQTTMessageTracker tracker, IIEncoderDecoderService encodeDecodeService)
+        public SubscribeViewModel(MQTTMessageTracker tracker, IIEncoderDecoderService encodeDecodeService)
         {
             _messageTrackerDisposable = tracker.Subscribe(this);
             _encoderDecoderService = encodeDecodeService;
@@ -64,6 +64,7 @@ namespace MQTTSniffer.ViewModels.Documents
             {
                 Decoders.Add(decoder);
             }
+            SelectedDecoder = Decoders.First();
         }
 
         public override bool OnClose()
