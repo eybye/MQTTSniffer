@@ -16,16 +16,19 @@ namespace MQTTSniffer.Extensions
 
         public ExtensionImporter()
         {
+            var configuration = new ContainerConfiguration()
+                .WithPart(typeof(AsciiEncoderDecoder));
+
             var executableLocation = Assembly.GetEntryAssembly().Location;
             var path = Path.Combine(Path.GetDirectoryName(executableLocation), "Plugins");
-            var assemblies = Directory
-                        .GetFiles(path, "*.dll", SearchOption.AllDirectories)
-                        .Select(AssemblyLoadContext.Default.LoadFromAssemblyPath)
-                        .ToList();
-
-            var configuration = new ContainerConfiguration()
-                .WithPart(typeof(AsciiEncoderDecoder))
-                .WithAssemblies(assemblies);
+            if (Directory.Exists(path))
+            {
+                var assemblies = Directory
+                            .GetFiles(path, "*.dll", SearchOption.AllDirectories)
+                            .Select(AssemblyLoadContext.Default.LoadFromAssemblyPath)
+                            .ToList();
+                configuration = configuration.WithAssemblies(assemblies);
+            }
             using (var container = configuration.CreateContainer())
             {
                 _encoderDecoders = container.GetExports<IEncoderDecoder>();

@@ -18,7 +18,9 @@ namespace MQTTSniffer.EncoderDecoder
 
         public byte[] Encode(string topic, string payload)
         {
-            return ASCIIEncoding.ASCII.GetBytes(payload);
+            if (!string.IsNullOrEmpty(payload))
+                return ASCIIEncoding.ASCII.GetBytes(payload);
+            return new byte[0];
         }
     }
 }

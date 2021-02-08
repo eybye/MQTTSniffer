@@ -191,6 +191,19 @@ namespace MQTTSniffer.ViewModels
                 }
             }
         }
+        private void AddPublishViewModel(PublishViewModel publishViewModel)
+        {
+            if (Layout?.ActiveDockable is IDock active)
+            {
+                if (active.Factory?.FindDockable(active, (d) => d.Id == DocumentsDockId) is IDock dock)
+                {
+                    Factory?.AddDockable(dock, publishViewModel);
+                    Factory?.SetActiveDockable(publishViewModel);
+                    Factory?.SetFocusedDockable(Layout, publishViewModel);
+                //    _subscribeViewModels.Add(subscribeViewModel);
+                }
+            }
+        }
         private void CloseAllSubscribeViews()
         {
             foreach (var item in _subscribeViewModels)
@@ -246,6 +259,19 @@ namespace MQTTSniffer.ViewModels
 
         public async void NewPublishCommand()
         {
+            // if document window already exist with that name, switch to it
+            //if (Layout?.ActiveDockable is IDock active)
+            //{
+            //    if (active.Factory?.FindDockable(active, (d) => d.Title == SubscribeTopic) is IDock dock)
+            //    {
+            //        Factory?.SetActiveDockable(dock);
+            //        Factory?.SetFocusedDockable(Layout, dock);
+            //        return;
+            //    }
+            //}
+            var service = Bootstrapper.ServiceProvider.GetService<IIEncoderDecoderService>();
+            var publishViewModel = new PublishViewModel(this, service);
+            AddPublishViewModel(publishViewModel);
         }
         private async void SubscribeViewModel_OnClosedEvent(object? sender, EventArgs e)
         {
@@ -556,5 +582,13 @@ namespace MQTTSniffer.ViewModels
             }
             return null;
         }
+
+        #region IMainContext
+        public void Publish(MQTTMessage message)
+        {
+            _client.SendRawMessage(message.Topic, message.Payload);
+        }
+
+        #endregion
     }
 }
