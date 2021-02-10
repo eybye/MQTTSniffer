@@ -18,6 +18,8 @@
       <Button Grid.Row="3" Grid.Column="2" Content="Generate" Margin="5,5,0,0" Command="{Binding OnMQTTClientIdGenerateCommand}" />
       <TextBlock Grid.Row="4" Grid.Column="0" Text="Protocol version" VerticalAlignment="Center" />
       <ComboBox Grid.Row="4" Grid.Column="1" Margin="5,5,0,0" Items="{Binding ProtocolVersions}" SelectedItem="{Binding SelectedProtocolVersion}"/>
+      <TextBlock Grid.Row="5" Grid.Column="0" Text="Plugin path" VerticalAlignment="Center" />
+      <TextBox Grid.Row="5" Grid.Column="1" Margin="5,5,0,0" Text="{Binding PluginPath}" />
     </Grid>
     <TextBlock Grid.Row="2" Text="Security" VerticalAlignment="Center" FontWeight="Medium" FontSize="16" Margin="0,15,0,15"/>
     <Border  Grid.Row="3" BorderBrush="Black" BorderThickness="1">

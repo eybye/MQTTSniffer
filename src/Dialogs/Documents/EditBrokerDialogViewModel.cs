@@ -23,6 +23,7 @@ namespace MQTTSniffer.Dialogs.Documents
         private string _tlsEnabled = "Disabled";
         private bool _isOnTlsEnabled;
         private string? _clientCertificateText;
+        private string? _pluginPath;
 
         private BrokerEntity? _entityCopy;
         public ObservableCollection<string> ProtocolVersions { get; set; } = new ObservableCollection<string>();
@@ -39,6 +40,7 @@ namespace MQTTSniffer.Dialogs.Documents
                 _password = brokerEntity.Password;
                 _isOnTlsEnabled = brokerEntity.TlsEnabled;
                 _clientCertificateText = brokerEntity.ClientCertificate;
+                _pluginPath = brokerEntity.PluginPath;
             }
             else
             {
@@ -61,6 +63,7 @@ namespace MQTTSniffer.Dialogs.Documents
                 _entityCopy.ProtocolVersion = (BrokerEntity.eProtocolVersion)Enum.Parse(typeof(BrokerEntity.eProtocolVersion), _protocolVersion ?? BrokerEntity.eProtocolVersion.V310.ToString());
                 _entityCopy.TlsEnabled = _isOnTlsEnabled;
                 _entityCopy.ClientCertificate = _clientCertificateText;
+                _entityCopy.PluginPath = _pluginPath;
             }
             return _entityCopy;
         }
@@ -86,6 +89,11 @@ namespace MQTTSniffer.Dialogs.Documents
         {
             get => _protocolVersion;
             set => this.RaiseAndSetIfChanged(ref _protocolVersion, value);
+        }
+        public string? PluginPath
+        {
+            get => _pluginPath;
+            set => this.RaiseAndSetIfChanged(ref _pluginPath, value);
         }
         #region Security
         public string? UserName

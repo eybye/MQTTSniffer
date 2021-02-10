@@ -5,8 +5,9 @@ using System.Text;
 
 namespace MQTTSniffer.Extensions
 {
-    interface IExtensionImporter
+    public interface IExtensionImporter
     {
+        void ResolvePlugins(string path);
         IEnumerable<IEncoderDecoder> GetEncoderDecoders();
     }
 }

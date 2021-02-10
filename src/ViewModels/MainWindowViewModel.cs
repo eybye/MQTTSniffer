@@ -35,7 +35,7 @@ namespace MQTTSniffer.ViewModels
         private CanDisconnectTracker _disconnectTracker;
         private MQTTMessageTracker _messageTracker = new MQTTMessageTracker();
         private BrokerEntity? SelectedBrokerEntity;
-        private ExtensionImporter _extensionImporter;
+        private IExtensionImporter _extensionImporter;
         public IReactiveCommand OnConnectCommand { get; }
         public IReactiveCommand OnDisconnectCommand { get; }
 
@@ -102,8 +102,9 @@ namespace MQTTSniffer.ViewModels
                 _observers.ForEach(o => o.OnNext(state));
             }
         }
-        public MainWindowViewModel()
+        public MainWindowViewModel(IExtensionImporter extensionImporter)
         {
+            _extensionImporter = extensionImporter;
             _connectTracker = new CanConnectTracker();
             _disconnectTracker = new CanDisconnectTracker();
             OnConnectCommand = ReactiveCommand.Create(() => OnConnectAction(), _connectTracker);
@@ -364,6 +365,7 @@ namespace MQTTSniffer.ViewModels
                                 OnDisconnectAction();
                             }
                             UpdateTitle();
+                            _extensionImporter.ResolvePlugins(SelectedBrokerEntity.PluginPath);
                             _connectTracker.CanConnect(true);
                             CloseAllSubscribeViews();
                             var service = Bootstrapper.ServiceProvider.GetService<IIEncoderDecoderService>();
@@ -438,6 +440,7 @@ namespace MQTTSniffer.ViewModels
             {
                 // save
                 SelectedBrokerEntity = editBrokerViewModel.GetEntity();
+                _extensionImporter.ResolvePlugins(SelectedBrokerEntity.PluginPath);
                 _connectTracker.CanConnect(true);
             }
         }

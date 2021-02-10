@@ -21,8 +21,8 @@ namespace MQTTSniffer.Model
         public string? Password { get; set; }
         public bool TlsEnabled { get; set; }
         public string? ClientCertificate { get; set; }
-
         public List<string> Topics { get; set; } = new List<string>();
+        public string? PluginPath { get; set; }
 
         [Newtonsoft.Json.JsonIgnore]
         public string FilePath = string.Empty;

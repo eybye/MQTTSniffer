@@ -6,6 +6,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Dock.Model;
 using Dock.Model.Controls;
+using MQTTSniffer.Extensions;
 using MQTTSniffer.ViewModels;
 using MQTTSniffer.Views;
 using ReactiveUI.Legacy;
@@ -17,13 +18,17 @@ namespace MQTTSniffer
     {
         public override void Initialize()
         {
-            Bootstrapper.Register(Locator.CurrentMutable, Locator.Current); // note that I'm passing Splat service locators as parameters
             AvaloniaXamlLoader.Load(this);
         }
 
+        public override void RegisterServices()
+        {
+            base.RegisterServices();
+            Bootstrapper.Register(Locator.CurrentMutable, Locator.Current); // note that I'm passing Splat service locators as parameters
+        }
         public override void OnFrameworkInitializationCompleted()
         {
-            var mainWindowViewModel = new MainWindowViewModel();
+            var mainWindowViewModel = new MainWindowViewModel(Locator.Current.GetService<IExtensionImporter>());
 
             var factory = new MQTTSnifferFactory();
             IDock? layout = null;
